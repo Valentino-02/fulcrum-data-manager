@@ -2,16 +2,10 @@ import { redirect } from "next/navigation";
 
 type MessageType = "error" | "success";
 
-interface IEncodedRedirect {
-  type: MessageType;
-  path: string;
-  message: string;
-}
-
-export function encodedRedirect({
-  type,
-  path,
-  message,
-}: IEncodedRedirect): never {
+export function encodedRedirect(
+  type: MessageType,
+  path: string,
+  message: string
+): never {
   return redirect(`${path}?${type}=${encodeURIComponent(message)}`);
 }
