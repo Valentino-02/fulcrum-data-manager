@@ -10,6 +10,7 @@ import {
 
 import { getSets } from "@/actions/setActions";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default async function SetsPage() {
   const sets = await getSets()
@@ -34,9 +35,12 @@ export default async function SetsPage() {
    {set.tags.map((tag: { name: any; }) => tag.name).join(", ")}
    </TableCell>
  </TableRow>)}
- 
   </TableBody>
 </Table>
+<Link href={'/sets/newSet'}>    <Button>
+      Create New Set
+    </Button></Link>
+
     </div>
   );
 }
