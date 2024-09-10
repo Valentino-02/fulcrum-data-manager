@@ -10,12 +10,13 @@ const formSchema = z.object({
       name: z.string().min(1, {
         message: "Aspect name is required.",
       }),
-      values: z.array(z.string()).length(5, {
-        message: "There must be exactly 5 values.",
-      }),
+      values: z
+        .array(z.string())
+        .min(2, { message: "There must be at least 2 values." })
+        .max(10, { message: "There cannot be more than 10 values." }),
     })
   ),
-})
+});
 
 export type FormValues = z.infer<typeof formSchema>
 
@@ -37,7 +38,6 @@ export async function addSet(data: FormValues) {
   }
 
   const setId = setData[0].id
-
 
   const { error: aspectsError } = await supabase
     .from("aspects")

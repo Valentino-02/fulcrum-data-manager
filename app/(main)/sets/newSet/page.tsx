@@ -1,12 +1,12 @@
 "use client"
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
-import { useForm, useFieldArray } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useForm, useFieldArray } from "react-hook-form";
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card } from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -14,9 +14,9 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { X } from 'lucide-react';
-import { addSet } from "@/actions/setClientActions"
+} from "@/components/ui/form";
+import { X, PlusCircle, MinusCircle } from 'lucide-react';
+import { addSet } from "@/actions/setClientActions";
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -27,14 +27,15 @@ const formSchema = z.object({
       name: z.string().min(1, {
         message: "Aspect name is required.",
       }),
-      values: z.array(z.string()).length(5, {
-        message: "There must be exactly 5 values.",
-      }),
+      values: z
+        .array(z.string())
+        .min(2, { message: "There must be at least 2 values." })
+        .max(10, { message: "There cannot be more than 10 values." }),
     })
   ),
-})
+});
 
-export type FormValues = z.infer<typeof formSchema>
+export type FormValues = z.infer<typeof formSchema>;
 
 export default function NewSetPage() {
   const form = useForm<FormValues>({
@@ -43,17 +44,17 @@ export default function NewSetPage() {
       name: "",
       aspects: [{ name: "", values: ["", "", "", "", ""] }],
     },
-  })
+  });
 
-  const { control, handleSubmit } = form
-  const { fields, append, remove } = useFieldArray({
+  const { control, handleSubmit } = form;
+  const { fields, append, remove, update } = useFieldArray({
     control,
     name: "aspects",
-  })
+  });
 
   const onSubmit = (data: FormValues) => {
-    addSet(data)
-  }
+    addSet(data);
+  };
 
   return (
     <Card className="p-6 max-w-4xl mx-auto bg-gray-950 text-gray-100 shadow-lg">
@@ -118,27 +119,55 @@ export default function NewSetPage() {
                     />
                   </div>
 
-                  <div className="flex flex-wrap gap-4">
-                    {aspect.values.map((_, valueIndex) => (
-                      <FormField
-                        key={valueIndex}
-                        control={control}
-                        name={`aspects.${index}.values.${valueIndex}`}
-                        render={({ field }) => (
-                          <FormItem className="flex-1">
-                            <FormLabel className="text-gray-300">Value {valueIndex + 1}</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder={`Enter value ${valueIndex + 1}`}
-                                {...field}
-                                className="bg-gray-800 border-gray-700 text-gray-100"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
+                  <div className="flex flex-wrap gap-4 items-center">
+                    {aspect.values.map((value, valueIndex) => (
+                      <div key={valueIndex} className="flex items-center">
+                        <FormField
+                          control={control}
+                          name={`aspects.${index}.values.${valueIndex}`}
+                          render={({ field }) => (
+                            <FormItem className="flex-1">
+                              <FormLabel className="text-gray-300">Value {valueIndex + 1}</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder={`Enter value ${valueIndex + 1}`}
+                                  {...field}
+                                  className="bg-gray-800 border-gray-700 text-gray-100"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        {aspect.values.length > 2 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updatedValues = [...aspect.values];
+                              updatedValues.splice(valueIndex, 1);
+                              update(index, { ...aspect, values: updatedValues });
+                            }}
+                            className="ml-2 mt-6 text-red-500 hover:text-red-400"
+                            aria-label="Remove Value"
+                          >
+                            <MinusCircle className="w-5 h-5" />
+                          </button>
                         )}
-                      />
+                      </div>
                     ))}
+                    {aspect.values.length < 10 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const updatedValues = [...aspect.values, ""];
+                          update(index, { ...aspect, values: updatedValues });
+                        }}
+                        className="text-emerald-500 mt-6 hover:text-emerald-400"
+                        aria-label="Add Value"
+                      >
+                        <PlusCircle className="w-5 h-5" />
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -163,6 +192,7 @@ export default function NewSetPage() {
         </form>
       </Form>
     </Card>
-  )
+  );
 }
+
 
