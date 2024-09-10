@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/form";
 import { X, PlusCircle, MinusCircle } from 'lucide-react';
 import { addSet } from "@/actions/setClientActions";
+import Link from "next/link";
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -57,6 +58,11 @@ export default function NewSetPage() {
   };
 
   return (
+    <div className="flex flex-col gap-4 items-center">
+      <Link href={'/sets'}>    <Button>
+      Go to Sets
+    </Button></Link>
+ 
     <Card className="p-6 max-w-4xl mx-auto bg-gray-950 text-gray-100 shadow-lg">
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
@@ -192,6 +198,7 @@ export default function NewSetPage() {
         </form>
       </Form>
     </Card>
+    </div>
   );
 }
 

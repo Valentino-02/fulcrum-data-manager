@@ -18,26 +18,26 @@ const formSchema = z.object({
   ),
 });
 
-export type FormValues = z.infer<typeof formSchema>
+export type FormValues = z.infer<typeof formSchema>;
 
-export async function addSet(data: FormValues) {
+export async function addSet(data: FormValues): Promise<void> {
   const supabase = createClient();
 
   const { data: setData, error: setError } = await supabase
     .from("sets")
     .insert({ name: data.name })
-    .select(); 
+    .select();
 
   if (setError) {
     console.error("Error inserting set:", setError);
     return;
   }
-  if (!setData) {
+  if (!setData || setData.length === 0) {
     console.error("No set data returned");
     return;
   }
 
-  const setId = setData[0].id
+  const setId = setData[0].id;
 
   const { error: aspectsError } = await supabase
     .from("aspects")
@@ -54,4 +54,84 @@ export async function addSet(data: FormValues) {
   }
 
   console.log("Set and aspects successfully inserted");
+}
+
+export async function updateSet(id: string, data: FormValues): Promise<void> {
+  const supabase = createClient();
+
+  const { error: setError } = await supabase
+    .from("sets")
+    .update({ name: data.name })
+    .match({ id });
+
+  if (setError) {
+    console.error("Error updating set:", setError);
+    return;
+  }
+
+  const { error: deleteError } = await supabase
+    .from("aspects")
+    .delete()
+    .match({ set_id: id });
+
+  if (deleteError) {
+    console.error("Error deleting aspects:", deleteError);
+    return;
+  }
+
+  const { error: insertError } = await supabase
+    .from("aspects")
+    .insert(
+      data.aspects.map(aspect => ({
+        ...aspect,
+        set_id: id,
+      }))
+    );
+
+  if (insertError) {
+    console.error("Error inserting aspects:", insertError);
+    return;
+  }
+
+  console.log("Set and aspects successfully updated");
+}
+
+export async function getSetById(id: string): Promise<FormValues | null> {
+  const supabase = createClient();
+
+  console.log('Fetching data! of id: ' + id)
+
+  const { data: setData, error: setError } = await supabase
+    .from("sets")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (setError) {
+    console.error("Error fetching set:", setError);
+    return null;
+  }
+
+  if (!setData) {
+    console.error("No set data found");
+    return null;
+  }
+
+  const { data: aspectsData, error: aspectsError } = await supabase
+    .from("aspects")
+    .select("*")
+    .eq("set_id", id);
+
+  if (aspectsError) {
+    console.error("Error fetching aspects:", aspectsError);
+    return null;
+  }
+
+  return {
+    name: setData.name,
+    aspects: aspectsData.map(aspect => ({
+      name: aspect.name,
+      values: aspect.values 
+    }))
+  };
 }
