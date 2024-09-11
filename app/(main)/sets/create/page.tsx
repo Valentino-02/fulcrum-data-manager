@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useForm, useFieldArray } from "react-hook-form";
+import { useRouter } from "next/navigation";
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,6 +40,7 @@ const formSchema = z.object({
 export type FormValues = z.infer<typeof formSchema>;
 
 export default function NewSetPage() {
+  const router = useRouter();
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -54,7 +56,10 @@ export default function NewSetPage() {
   });
 
   const onSubmit = (data: FormValues) => {
-    addSet(data);
+    addSet(data).then(() =>{
+      router.push("/sets");
+      router.refresh()
+    });
   };
 
   return (

@@ -48,13 +48,39 @@ export default function SetsPage() {
     }
   };
 
+  const downloadJSON = () => {
+    const jsonData = {
+      Sets: sets.map((set) => ({
+        Id: set.id,
+        Name: set.name,
+        Aspects: set.aspects.map((aspect: { name: string, values: string[] }) => ({
+          Name: aspect.name,
+          Values: aspect.values,
+        })),
+      })),
+    };
+
+    const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'aspectSets.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="items-center flex flex-col gap-6 px-4">
+      <div className='flex gap-4'>
       <Link href={'/sets/create'}>
         <Button>
           Create New Set
         </Button>
       </Link>
+      <Button onClick={downloadJSON}>
+          Download JSON
+      </Button>
+      </div>
       <Table>
         <TableCaption>A list of Aspect Sets.</TableCaption>
         <TableHeader>
