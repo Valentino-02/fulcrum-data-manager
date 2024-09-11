@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getSets, deleteSetById } from "@/actions/setClientActions";
+import { getSets, deleteSetById } from "@/actions/setActions";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 

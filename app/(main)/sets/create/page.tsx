@@ -17,7 +17,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { X, PlusCircle, MinusCircle } from 'lucide-react';
-import { addSet } from "@/actions/setClientActions";
+import { addSet } from "@/actions/setActions";
 import Link from "next/link";
 
 const formSchema = z.object({

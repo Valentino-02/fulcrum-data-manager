@@ -18,7 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { X, PlusCircle, MinusCircle } from 'lucide-react';
-import { updateSet, getSetById } from "@/actions/setClientActions";
+import { updateSet, getSetById } from "@/actions/setActions";
 import Link from "next/link";
 
 const formSchema = z.object({
