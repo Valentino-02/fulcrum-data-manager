@@ -20,6 +20,35 @@ const formSchema = z.object({
 
 export type FormValues = z.infer<typeof formSchema>;
 
+// Define additional types for tags
+type Tag = {
+  name: string;
+};
+
+// Define the Set type using FormValues
+type Set = FormValues & {
+  id: string;
+  tags: Tag[];
+};
+
+export async function getSets(): Promise<Set[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("sets")
+    .select(`
+      *,
+      aspects (*),
+      tags (*)
+    `);
+
+  if (error) {
+    console.error("Error fetching sets with aspects:", error);
+    return [];
+  }
+
+  return data as Set[];
+}
+
 export async function addSet(data: FormValues): Promise<void> {
   const supabase = createClient();
 
@@ -94,6 +123,34 @@ export async function updateSet(id: string, data: FormValues): Promise<void> {
   }
 
   console.log("Set and aspects successfully updated");
+}
+
+export async function deleteSetById(id: string): Promise<void> {
+  const supabase = createClient();
+
+  // First, delete related aspects to maintain database integrity
+  const { error: deleteAspectsError } = await supabase
+    .from("aspects")
+    .delete()
+    .match({ set_id: id });
+
+  if (deleteAspectsError) {
+    console.error("Error deleting aspects:", deleteAspectsError);
+    return;
+  }
+
+  // Then, delete the set itself
+  const { error: deleteSetError } = await supabase
+    .from("sets")
+    .delete()
+    .match({ id });
+
+  if (deleteSetError) {
+    console.error("Error deleting set:", deleteSetError);
+    return;
+  }
+
+  console.log("Set and related aspects successfully deleted");
 }
 
 export async function getSetById(id: string): Promise<FormValues | null> {
