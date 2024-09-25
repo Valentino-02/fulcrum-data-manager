@@ -20,12 +20,10 @@ const formSchema = z.object({
 
 export type FormValues = z.infer<typeof formSchema>;
 
-// Define additional types for tags
 type Tag = {
   name: string;
 };
 
-// Define the Set type using FormValues
 type Set = FormValues & {
   id: string;
   tags: Tag[];
@@ -128,7 +126,6 @@ export async function updateSet(id: string, data: FormValues): Promise<void> {
 export async function deleteSetById(id: string): Promise<void> {
   const supabase = createClient();
 
-  // First, delete related aspects to maintain database integrity
   const { error: deleteAspectsError } = await supabase
     .from("aspects")
     .delete()
@@ -139,7 +136,6 @@ export async function deleteSetById(id: string): Promise<void> {
     return;
   }
 
-  // Then, delete the set itself
   const { error: deleteSetError } = await supabase
     .from("sets")
     .delete()

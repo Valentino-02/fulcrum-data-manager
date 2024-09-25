@@ -8,14 +8,14 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { getSets, deleteSetById } from "@/actions/setActions";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+  TableRow
+} from '@/components/ui/table';
+import { getSets, deleteSetById } from '@/actions/setActions';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
-export default function SetsPage() {
-  const [sets, setSets] = useState<any[]>([]);  // Adjust the type according to your actual data structure
+export default function UpdateSetPage() {
+  const [sets, setSets] = useState<any[]>([]); // Adjust the type according to your actual data structure
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -25,22 +25,22 @@ export default function SetsPage() {
         const data = await getSets();
         setSets(data);
       } catch (error) {
-        console.error("Error fetching sets:", error);
+        console.error('Error fetching sets:', error);
       }
     };
 
     fetchSets();
-  }, []);  // Empty dependency array ensures this runs only once on mount
+  }, []); // Empty dependency array ensures this runs only once on mount
 
   const handleDeleteClick = async (id: string) => {
     if (confirmDeleteId === id) {
       // If already in confirm mode, call the delete action
       try {
         await deleteSetById(id);
-        setSets((prevSets) => prevSets.filter(set => set.id !== id));  // Update the state to remove the deleted set
-        setConfirmDeleteId(null);  // Reset confirmation state
+        setSets((prevSets) => prevSets.filter((set) => set.id !== id)); // Update the state to remove the deleted set
+        setConfirmDeleteId(null); // Reset confirmation state
       } catch (error) {
-        console.error("Error deleting set:", error);
+        console.error('Error deleting set:', error);
       }
     } else {
       // Set the id to confirm deletion
@@ -53,11 +53,11 @@ export default function SetsPage() {
       Sets: sets.map((set) => ({
         Id: set.id,
         Name: set.name,
-        Aspects: set.aspects.map((aspect: { name: string, values: string[] }) => ({
+        Aspects: set.aspects.map((aspect: { name: string; values: string[] }) => ({
           Name: aspect.name,
-          Values: aspect.values,
-        })),
-      })),
+          Values: aspect.values
+        }))
+      }))
     };
 
     const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
@@ -71,15 +71,11 @@ export default function SetsPage() {
 
   return (
     <div className="items-center flex flex-col gap-6 px-4">
-      <div className='flex gap-4'>
-      <Link href={'/sets/create'}>
-        <Button>
-          Create New Set
-        </Button>
-      </Link>
-      <Button onClick={downloadJSON}>
-          Download JSON
-      </Button>
+      <div className="flex gap-4">
+        <Link href={'/sets/create'}>
+          <Button>Create New Set</Button>
+        </Link>
+        <Button onClick={downloadJSON}>Download JSON</Button>
       </div>
       <Table>
         <TableCaption>A list of Aspect Sets.</TableCaption>
@@ -96,16 +92,12 @@ export default function SetsPage() {
             <TableRow key={set.id}>
               <TableCell className="font-medium">{set.name}</TableCell>
               <TableCell>
-                {set.aspects.map((aspect: { name: string }) => aspect.name).join(", ")}
+                {set.aspects.map((aspect: { name: string }) => aspect.name).join(', ')}
               </TableCell>
-              <TableCell>
-                {set.tags.map((tag: { name: string }) => tag.name).join(", ")}
-              </TableCell>
+              <TableCell>{set.tags.map((tag: { name: string }) => tag.name).join(', ')}</TableCell>
               <TableCell className="flex gap-2">
                 <Link href={`/sets/update/${set.id}`}>
-                  <Button className="bg-purple-900 text-white hover:bg-purple-700">
-                    Update
-                  </Button>
+                  <Button className="bg-purple-900 text-white hover:bg-purple-700">Update</Button>
                 </Link>
                 <Button
                   className="bg-red-600 text-white hover:bg-red-800"
